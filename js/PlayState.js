@@ -229,7 +229,7 @@ PlayState._spawnCoin = function (coin) {
     sprite.body.allowGravity = false;
 
     // animations
-    sprite.animations.add('rotate', [0, 1, 2, 1], 6, true); // 6fps, looped
+    sprite.animations.add('rotate', [0, 1, 2, 3], 8, true); // 6fps, looped
     sprite.animations.play('rotate');
 };
 
@@ -258,10 +258,10 @@ PlayState._spawnDoor = function (x, y) {
 
 PlayState._createHud = function () {
     const NUMBERS_STR = '0123456789X ';
-    this.coinFont = this.game.add.retroFont('font:numbers', 20, 26,
+    this.coinFont = this.game.add.retroFont('font:numbers', 10, 13,
         NUMBERS_STR, 6);
 
-    this.keyIcon = this.game.make.image(0, 19, 'icon:key');
+    this.keyIcon = this.game.make.image(0, 10, 'icon:key');
     this.keyIcon.anchor.set(0, 0.5);
 
     let coinIcon = this.game.make.image(this.keyIcon.width + 7, 0, 'icon:coin');
