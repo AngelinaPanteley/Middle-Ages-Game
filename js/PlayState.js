@@ -6,6 +6,9 @@ PlayState = {};
 
 const LEVEL_COUNT = 2;
 
+let lifeCount = 7;
+let allCoins = 0;
+
 PlayState.init = function (data) {
     this.keys = this.game.input.keyboard.addKeys({
         left: Phaser.KeyCode.LEFT,
@@ -35,7 +38,7 @@ PlayState.create = function () {
 
     // create level entities and decoration
     this.game.add.image(0, 0, 'background');
-    this._loadLevel(this.game.cache.getJSON(`level:1`));//`level:${this.level}`
+    this._loadLevel(this.game.cache.getJSON(`level:${this.level}`));
 
     // create UI score boards
     this._createHud();
@@ -46,7 +49,7 @@ PlayState.update = function () {
     this._handleInput();
 
     // update scoreboards
-    this.coinFont.text = `x${this.coinPickupCount}`;
+    this.coinFont.text = `x${allCoins}`;
     this.keyIcon.frame = this.hasKey ? 1 : 0;
 };
 
@@ -108,6 +111,7 @@ PlayState._onHeroVsCoin = function (hero, coin) {
     this.sfx.coin.play();
     coin.kill();
     this.coinPickupCount++;
+    allCoins++;
 };
 
 PlayState._onHeroVsEnemy = function (hero, enemy) {
@@ -121,6 +125,13 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
         hero.die();
         this.sfx.stomp.play();
         hero.events.onKilled.addOnce(function () {
+            lifeCount--;
+            allCoins-=this.coinPickupCount;
+            if(lifeCount === 0) {
+                lifeCount = 7;
+                this.level = 0;
+                allCoins=0;
+            }
             this.game.state.restart(true, false, {level: this.level});
         }, this);
 
@@ -182,6 +193,7 @@ PlayState._loadLevel = function (data) {
     // enable gravity
     const GRAVITY = 1200;
     this.game.physics.arcade.gravity.y = GRAVITY;
+
 };
 
 PlayState._spawnCharacters = function (data) {
@@ -264,6 +276,34 @@ PlayState._createHud = function () {
     this.keyIcon = this.game.make.image(0, 10, 'icon:key');
     this.keyIcon.anchor.set(0, 0.5);
 
+    this.heartIcon1 = this.game.make.image(1120, 10, 'icon:heart');
+    this.heartIcon1.anchor.set(0, 0.5);
+    this.heartIcon2 = this.game.make.image(1140, 10, 'icon:heart');
+    this.heartIcon2.anchor.set(0, 0.5);
+    this.heartIcon3 = this.game.make.image(1160, 10, 'icon:heart');
+    this.heartIcon3.anchor.set(0, 0.5);
+
+    if(lifeCount<7) {
+        let heartNumber = Math.ceil((lifeCount) / 2);
+        let remain = (lifeCount) % 2;
+        switch(heartNumber) {
+            case 3 :
+                this.heartIcon3.frame = remain? 2 : 1;
+                break;
+
+            case 2 :
+                this.heartIcon2.frame = remain? 2 : 1;
+                this.heartIcon3.frame = 2;
+                break;
+
+            case 1 :
+                this.heartIcon1.frame = remain? 2 : 1;
+                this.heartIcon2.frame = 2;
+                this.heartIcon3.frame = 2;
+                break;
+        }
+    }
+
     let coinIcon = this.game.make.image(this.keyIcon.width + 7, 0, 'icon:coin');
     let coinScoreImg = this.game.make.image(coinIcon.x + coinIcon.width,
         coinIcon.height / 2, this.coinFont);
@@ -273,5 +313,8 @@ PlayState._createHud = function () {
     this.hud.add(coinIcon);
     this.hud.add(coinScoreImg);
     this.hud.add(this.keyIcon);
+    this.hud.add(this.heartIcon1);
+    this.hud.add(this.heartIcon2);
+    this.hud.add(this.heartIcon3);
     this.hud.position.set(10, 10);
 };

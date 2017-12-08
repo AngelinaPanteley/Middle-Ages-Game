@@ -34,6 +34,7 @@ LoadingState.preload = function () {
     this.game.load.spritesheet('goblin', 'images/goblin.png', 24, 32);
     this.game.load.spritesheet('door', 'images/door.png', 96, 96);
     this.game.load.spritesheet('icon:key', 'images/key_icon1.png', 14, 25);
+    this.game.load.spritesheet('icon:heart', 'images/heart_icon.png', 19, 17);
 
     this.game.load.audio('sfx:jump', 'audio/jump.wav');
     this.game.load.audio('sfx:coin', 'audio/coin.wav');
