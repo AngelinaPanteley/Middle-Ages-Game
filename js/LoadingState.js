@@ -27,10 +27,12 @@ LoadingState.preload = function () {
     this.game.load.image('grass:2x1', 'images/grass_2x1.png');
     this.game.load.image('grass:1x1', 'images/grass_1x1.png');
     this.game.load.image('key', 'images/key1.png');
+    this.game.load.image('heart', 'images/heart.png');
 
     this.game.load.spritesheet('decoration', 'images/decor.png', 42, 42);
     this.game.load.spritesheet('hero', 'images/hero1.png', 24, 34);
     this.game.load.spritesheet('coin', 'images/coin.png', 16, 16);
+    this.game.load.spritesheet('chest', 'images/chest.png', 28, 17);
     this.game.load.spritesheet('goblin', 'images/goblin.png', 24, 32);
     this.game.load.spritesheet('door', 'images/door.png', 96, 96);
     this.game.load.spritesheet('icon:key', 'images/key_icon1.png', 14, 25);
@@ -38,7 +40,9 @@ LoadingState.preload = function () {
 
     this.game.load.audio('sfx:jump', 'audio/jump.wav');
     this.game.load.audio('sfx:coin', 'audio/coin.wav');
+    this.game.load.audio('sfx:chest', 'audio/coin.wav');
     this.game.load.audio('sfx:key', 'audio/key.wav');
+    this.game.load.audio('sfx:heart', 'audio/key.wav');
     this.game.load.audio('sfx:stomp', 'audio/stomp.wav');
     this.game.load.audio('sfx:door', 'audio/door.wav');
     this.game.load.audio('bgm', ['audio/bgm.mp3', 'audio/bgm.ogg']);

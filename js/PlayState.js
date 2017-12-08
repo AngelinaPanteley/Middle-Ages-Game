@@ -29,7 +29,9 @@ PlayState.create = function () {
     this.sfx = {
         jump: this.game.add.audio('sfx:jump'),
         coin: this.game.add.audio('sfx:coin'),
+        chest: this.game.add.audio('sfx:coin'),
         key: this.game.add.audio('sfx:key'),
+        heart: this.game.add.audio('sfx:key'),
         stomp: this.game.add.audio('sfx:stomp'),
         door: this.game.add.audio('sfx:door')
     };
@@ -51,6 +53,7 @@ PlayState.update = function () {
     // update scoreboards
     this.coinFont.text = `x${allCoins}`;
     this.keyIcon.frame = this.hasKey ? 1 : 0;
+    this._updateHearts();
 };
 
 PlayState.shutdown = function () {
@@ -65,8 +68,13 @@ PlayState._handleCollisions = function () {
     // hero vs coins (pick up)
     this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin,
         null, this);
+    this.game.physics.arcade.overlap(this.hero, this.chests, this._onHeroVsChest,
+        null, this);
     // hero vs key (pick up)
     this.game.physics.arcade.overlap(this.hero, this.key, this._onHeroVsKey,
+        null, this);
+    // hero vs heart (pick up)
+    this.game.physics.arcade.overlap(this.hero, this.heart, this._onHeroVsHeart,
         null, this);
     // hero vs door (end level)
     this.game.physics.arcade.overlap(this.hero, this.door, this._onHeroVsDoor,
@@ -107,11 +115,24 @@ PlayState._onHeroVsKey = function (hero, key) {
     this.hasKey = true;
 };
 
+PlayState._onHeroVsHeart = function (hero, heart) {
+    this.sfx.heart.play();
+    heart.kill();
+    lifeCount++;
+};
+
 PlayState._onHeroVsCoin = function (hero, coin) {
     this.sfx.coin.play();
     coin.kill();
     this.coinPickupCount++;
     allCoins++;
+};
+
+PlayState._onHeroVsChest = function (hero, chest) {
+    this.sfx.chest.play();
+    chest.kill();
+    this.coinPickupCount+=10;
+    allCoins+=10;
 };
 
 PlayState._onHeroVsEnemy = function (hero, enemy) {
@@ -169,6 +190,7 @@ PlayState._loadLevel = function (data) {
     this.bgDecoration = this.game.add.group();
     this.platforms = this.game.add.group();
     this.coins = this.game.add.group();
+    this.chests = this.game.add.group();
     this.goblins = this.game.add.group();
     this.enemyWalls = this.game.add.group();
     this.enemyWalls.visible = false;
@@ -187,7 +209,11 @@ PlayState._loadLevel = function (data) {
 
     // spawn important objects
     data.coins.forEach(this._spawnCoin, this);
+    data.chests.forEach(this._spawnChest, this);
     this._spawnKey(data.key.x, data.key.y);
+    if(data.heart) {
+      this._spawnHeart(data.heart.x, data.heart.y);
+    }
     this._spawnDoor(data.door.x, data.door.y);
 
     // enable gravity
@@ -245,6 +271,19 @@ PlayState._spawnCoin = function (coin) {
     sprite.animations.play('rotate');
 };
 
+PlayState._spawnChest = function (chest) {
+    let sprite = this.chests.create(chest.x, chest.y, 'chest');
+    sprite.anchor.set(0.5, 0.5);
+
+    // physics (so we can detect overlap with the hero)
+    this.game.physics.enable(sprite);
+    sprite.body.allowGravity = false;
+
+    // animations
+    sprite.animations.add('gleam', [0, 1, 2, 3, 4], 8, true); // 6fps, looped
+    sprite.animations.play('gleam');
+};
+
 PlayState._spawnKey = function (x, y) {
     this.key = this.bgDecoration.create(x, y, 'key');
     this.key.anchor.set(0.5, 0.5);
@@ -256,6 +295,22 @@ PlayState._spawnKey = function (x, y) {
     this.key.y -= 3;
     this.game.add.tween(this.key)
         .to({y: this.key.y + 6}, 800, Phaser.Easing.Sinusoidal.InOut)
+        .yoyo(true)
+        .loop()
+        .start();
+};
+
+PlayState._spawnHeart = function (x, y) {
+    this.heart = this.bgDecoration.create(x, y, 'heart');
+    this.heart.anchor.set(0.5, 0.5);
+    // enable physics to detect collisions, so the hero can pick the key up
+    this.game.physics.enable(this.heart);
+    this.heart.body.allowGravity = false;
+
+    // add a small 'up & down' animation via a tween
+    this.heart.y -= 3;
+    this.game.add.tween(this.heart)
+        .to({y: this.heart.y + 6}, 800, Phaser.Easing.Sinusoidal.InOut)
         .yoyo(true)
         .loop()
         .start();
@@ -283,6 +338,24 @@ PlayState._createHud = function () {
     this.heartIcon3 = this.game.make.image(1160, 10, 'icon:heart');
     this.heartIcon3.anchor.set(0, 0.5);
 
+    this._updateHearts();
+
+    let coinIcon = this.game.make.image(this.keyIcon.width + 7, 0, 'icon:coin');
+    let coinScoreImg = this.game.make.image(coinIcon.x + coinIcon.width,
+        coinIcon.height / 2, this.coinFont);
+    coinScoreImg.anchor.set(0, 0.5);
+
+    this.hud = this.game.add.group();
+    this.hud.add(coinIcon);
+    this.hud.add(coinScoreImg);
+    this.hud.add(this.keyIcon);
+    this.hud.add(this.heartIcon1);
+    this.hud.add(this.heartIcon2);
+    this.hud.add(this.heartIcon3);
+    this.hud.position.set(10, 10);
+};
+
+PlayState._updateHearts = function () {
     if(lifeCount<7) {
         let heartNumber = Math.ceil((lifeCount) / 2);
         let remain = (lifeCount) % 2;
@@ -304,17 +377,11 @@ PlayState._createHud = function () {
         }
     }
 
-    let coinIcon = this.game.make.image(this.keyIcon.width + 7, 0, 'icon:coin');
-    let coinScoreImg = this.game.make.image(coinIcon.x + coinIcon.width,
-        coinIcon.height / 2, this.coinFont);
-    coinScoreImg.anchor.set(0, 0.5);
+    else {
+        this.heartIcon1.frame = 0;
+        this.heartIcon2.frame = 0;
+        this.heartIcon3.frame = 0;
+        lifeCount = 7;
+    }
 
-    this.hud = this.game.add.group();
-    this.hud.add(coinIcon);
-    this.hud.add(coinScoreImg);
-    this.hud.add(this.keyIcon);
-    this.hud.add(this.heartIcon1);
-    this.hud.add(this.heartIcon2);
-    this.hud.add(this.heartIcon3);
-    this.hud.position.set(10, 10);
 };
