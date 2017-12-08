@@ -19,9 +19,11 @@ LoadingState.preload = function () {
     this.game.load.image('background', 'images/background3.png');
     this.game.load.image('invisible-wall', 'images/invisible_wall.png');
     this.game.load.image('ground', 'images/ground.png');
+    this.game.load.image('grass:10x1', 'images/grass_10x1.png');
     this.game.load.image('grass:8x1', 'images/grass_8x1.png');
     this.game.load.image('grass:6x1', 'images/grass_6x1.png');
     this.game.load.image('grass:4x1', 'images/grass_4x1.png');
+    this.game.load.image('grass:3x1', 'images/grass_3x1.png');
     this.game.load.image('grass:2x1', 'images/grass_2x1.png');
     this.game.load.image('grass:1x1', 'images/grass_1x1.png');
     this.game.load.image('key', 'images/key1.png');
@@ -30,7 +32,7 @@ LoadingState.preload = function () {
     this.game.load.spritesheet('hero', 'images/hero1.png', 24, 34);
     this.game.load.spritesheet('coin', 'images/coin.png', 16, 16);
     this.game.load.spritesheet('goblin', 'images/goblin.png', 24, 32);
-    this.game.load.spritesheet('door', 'images/door.png', 42, 66);
+    this.game.load.spritesheet('door', 'images/door.png', 96, 96);
     this.game.load.spritesheet('icon:key', 'images/key_icon1.png', 14, 25);
 
     this.game.load.audio('sfx:jump', 'audio/jump.wav');
