@@ -2,9 +2,9 @@
 // Play state
 // =============================================================================
 
-PlayState = {};
+const PlayState = {};
 
-const LEVEL_COUNT = 2;
+const LEVEL_COUNT = 1;
 
 let lifeCount = 7;
 let allCoins = 0;
@@ -63,6 +63,8 @@ PlayState.shutdown = function () {
 PlayState._handleCollisions = function () {
     this.game.physics.arcade.collide(this.goblins, this.platforms);
     this.game.physics.arcade.collide(this.goblins, this.enemyWalls);
+    this.game.physics.arcade.collide(this.dragons, this.platforms);
+    this.game.physics.arcade.collide(this.dragons, this.enemyWalls);
     this.game.physics.arcade.collide(this.hero, this.platforms);
 
     // hero vs coins (pick up)
@@ -85,6 +87,12 @@ PlayState._handleCollisions = function () {
     // collision: hero vs enemies (kill or die)
     this.game.physics.arcade.overlap(this.hero, this.goblins,
         this._onHeroVsEnemy, null, this);
+    this.game.physics.arcade.overlap(this.hero, this.dragons,
+        this._onHeroVsEnemy, null, this);
+    this.game.physics.arcade.overlap(this.hero, this.dragonWalls,
+        this._onHeroVsDragonWall, null, this);
+    this.game.physics.arcade.overlap(this.hero, this.dragonFlames,
+        this._onHeroVsDragonFlame, null, this);
 };
 
 PlayState._handleInput = function () {
@@ -143,25 +151,55 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
         this.sfx.stomp.play();
     }
     else { // game over -> play dying animation and restart the game
-        hero.die();
-        this.sfx.stomp.play();
-        hero.events.onKilled.addOnce(function () {
-            lifeCount--;
-            allCoins-=this.coinPickupCount;
-            if(lifeCount === 0) {
-                lifeCount = 7;
-                this.level = 0;
-                allCoins=0;
-            }
-            this.game.state.restart(true, false, {level: this.level});
-        }, this);
-
-        // NOTE: bug in phaser in which it modifies 'touching' when
-        // checking for overlaps. This undoes that change so goblins don't
-        // 'bounce' agains the hero
-        enemy.body.touching = enemy.body.wasTouching;
+        this._heroDie(hero, enemy);
     }
 };
+
+PlayState._onHeroVsDragonWall = function (hero, wall) {
+    let dragon = wall.dragon;
+    dragon.body.velocity.x = 0;
+    dragon.wallLeft.body.velocity.x = 0;
+    dragon.wallRight.body.velocity.x = 0;
+    dragon.animations.play('attack').onComplete.addOnce(function () {
+      if(dragon.scale.x > 0) {
+          dragon.flame = new DragonFlame(dragon.game, dragon, dragon.body.x + 60, dragon.body.y + 20);
+      }
+      else {
+          dragon.flame = new DragonFlame(dragon.game, dragon, dragon.body.x, dragon.body.y + 20);
+      }
+      this.dragonFlames.add(dragon.flame);
+      dragon.flame.scale.x = dragon.scale.x;
+      dragon.flame.body.velocity.x = dragon.velocity*2;
+      dragon.animations.play('fly');
+      dragon.body.velocity.x = dragon.velocity;
+      dragon.wallLeft.body.velocity.x = dragon.velocity;
+      dragon.wallRight.body.velocity.x = dragon.velocity;
+    }, this);
+};
+
+PlayState._onHeroVsDragonFlame = function (hero, flame) {
+    this._heroDie(hero, flame);
+};
+
+PlayState._heroDie = function (hero, enemy) {
+    hero.die();
+    this.sfx.stomp.play();
+    hero.events.onKilled.addOnce(function () {
+        lifeCount--;
+        allCoins-=this.coinPickupCount;
+        if(lifeCount === 0) {
+            lifeCount = 7;
+            this.level = 0;
+            allCoins=0;
+        }
+        this.game.state.restart(true, false, {level: this.level});
+    }, this);
+
+    // NOTE: bug in phaser in which it modifies 'touching' when
+    // checking for overlaps. This undoes that change so enemies don't
+    // 'bounce' agains the hero
+    enemy.body.touching = enemy.body.wasTouching;
+}
 
 PlayState._onHeroVsDoor = function (hero, door) {
     // 'open' the door by changing its graphic and playing a sfx
@@ -176,13 +214,18 @@ PlayState._onHeroVsDoor = function (hero, door) {
 };
 
 PlayState._goToNextLevel = function () {
-    this.camera.fade('#000000');
-    this.camera.onFadeComplete.addOnce(function () {
-        // change to next level
-        this.game.state.restart(true, false, {
-            level: this.level + 1
-        });
-    }, this);
+    if(this.level + 1 == LEVEL_COUNT) {
+        this._createFinalWindow();
+    }
+    else {
+        this.camera.fade('#000000');
+        this.camera.onFadeComplete.addOnce(function () {
+            // change to next level
+            this.game.state.restart(true, false, {
+                level: this.level + 1
+            });
+        }, this);
+    }
 };
 
 PlayState._loadLevel = function (data) {
@@ -192,11 +235,14 @@ PlayState._loadLevel = function (data) {
     this.coins = this.game.add.group();
     this.chests = this.game.add.group();
     this.goblins = this.game.add.group();
+    this.dragons = this.game.add.group();
+    this.dragonWalls = this.game.add.group();
+    this.dragonFlames = this.game.add.group();
     this.enemyWalls = this.game.add.group();
     this.enemyWalls.visible = false;
 
     // spawn hero and enemies
-    this._spawnCharacters({hero: data.hero, goblins: data.goblins});
+    this._spawnCharacters({hero: data.hero, goblins: data.goblins, dragons: data.dragons});
 
     // spawn level decoration
     data.decoration.forEach(function (deco) {
@@ -227,6 +273,14 @@ PlayState._spawnCharacters = function (data) {
     data.goblins.forEach(function (goblin) {
         let sprite = new Goblin(this.game, goblin.x, goblin.y);
         this.goblins.add(sprite);
+    }, this);
+
+    // spawn dragons
+    data.dragons.forEach(function (dragon) {
+        let sprite = new Dragon(this.game, dragon.x, dragon.y);
+        this.dragons.add(sprite);
+        this.dragonWalls.add(sprite.wallRight);
+        this.dragonWalls.add(sprite.wallLeft);
     }, this);
 
     // spawn hero
@@ -385,3 +439,10 @@ PlayState._updateHearts = function () {
     }
 
 };
+
+PlayState._createFinalWindow = function () {
+    document.getElementById('game').classList.remove('open');
+    document.getElementById('final-window').classList.add('open');
+    document.getElementById('coins').innerHTML = "x" + allCoins;
+    document.getElementById('lives').innerHTML = "x" + (lifeCount-1)/2;
+}

@@ -1,0 +1,138 @@
+canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.game {
+  display: none;
+  background: #000;
+}
+
+.start-window {
+  background: url(../images/start.gif);
+  display: none;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.logo {
+  width: 740px;
+}
+
+.final-window {
+  display: none;
+  background: url('../images/final.gif');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.final-window img {
+  width: 30px;
+  margin-right: 10px;
+}
+
+.start-window {
+  display: none;
+}
+
+.open {
+  display: block;
+}
+
+body {
+  margin: 0;
+  min-width: 1200px;
+  min-height: 600px;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+body > * {
+  width: 100%;
+  height: 100%;
+  font-family: 'Press';
+  font-size: 30px;
+  color: #fff;
+  text-align: center;
+}
+
+@font-face {
+  font-family: 'Press';
+  src: url('../font/PressStart.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.center-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+a {
+  background: #ff8260;
+  padding: 20px 40px;
+  margin: 20px 0;
+  display: inline-block;
+  border: 5px solid #444068;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.play-btn {
+  background: #47e4ec;
+  border: 5px solid #258aae;
+}
+
+input[type="radio"] {
+  display: none;
+}
+
+input[type="radio"] + label {
+  color: #d4dfe3;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1.2rem;
+  height: 120px;
+  line-height: 2rem;
+  line-height: 43px;
+  margin: 10px;
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+  width: 140px;
+  background: #252454;
+}
+
+input[type="radio"] + label img {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  height: 140%;
+}
+
+input[type="radio"]:checked + label {
+  border: 5px solid #24f7fe;
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+}
+
+.choose {
+  line-height: 34px;
+  background: #262454;
+}
+
+form {
+  width: 555px;
+  margin: 0 auto;
+}

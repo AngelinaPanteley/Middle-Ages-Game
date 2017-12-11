@@ -2,37 +2,48 @@
 <head>
     <title></title>
     <meta charset="utf-8">
-
     <script src="js/phaser.min.js"></script>
     <script src="js/Hero.js"></script>
     <script src="js/Goblin.js"></script>
+    <script src="js/DragonFlame.js"></script>
+    <script src="js/DragonWall.js"></script>
+    <script src="js/Dragon.js"></script>
     <script src="js/LoadingState.js"></script>
     <script src="js/PlayState.js"></script>
     <script src="js/main.js"></script>
-
-    <style>
-        canvas {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        #game {
-            min-width: 1200px;
-            min-height: 700px;
-            width: 100vw;
-            height: 100vh;
-            background: url(images/game-back.jpg);
-            position: relative;
-        }
-
-        body {
-          margin: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-    <div id="game"></div>
+    <div class="start-window open" id="start-window">
+      <div class="center-container">
+        <img src="images/logo.png" alt="logo" class="logo">
+        <article>
+          <form class="settings" name="settings">
+            <p class="choose">Choose the hero:</p>
+            <fieldset class="choose-hero">
+              <input type="radio" id="hero0" name="hero" checked />
+              <label for="hero0"><img src="images/soldier.png" /></label>
 
+              <input type="radio" id="hero1" name="hero"/>
+              <label for="hero1"><img src="images/princess.png" /></label>
+
+              <input type="radio" id="hero2" name="hero"/>
+              <label for="hero2"><img src="images/barbarian.png" /></label>
+            </fieldset>
+          </form>
+          <a id="play-btn" class="play-btn">Start Game</a>
+        </article>
+      </div>
+    </div>
+    <div id="game" class="game"></div>
+    <div class="final-window" id="final-window">
+      <div class="center-container">
+          <p>CONGRATULATIONS!</p>
+          <p>YOU WON!</p>
+          <p>Your Score:</p>
+          <p><img src="images/coin_icon.png"/><span id="coins"></span></p>
+          <p><img src="images/heart.png"/><span id="lives"></span></p>
+          <a id="play-again" class="play-btn">Play Again</a>
+      </div>
+    </div>
 </body>
