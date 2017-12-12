@@ -1,7 +1,8 @@
 {
     "platforms": [
         {"image": "ground", "x": 0, "y": 515},
-        {"image": "grass:10x1", "x": 420, "y": 389}
+        {"image": "grass:10x1", "x": 420, "y": 389},
+        {"image": "grass:10x1", "x": 820, "y": 389}
     ],
     "decoration": [
     ],
@@ -16,8 +17,14 @@
     "hero": {"x": 21, "y": 494},
     "goblins": [
     ],
+    "gargoyles": [
+
+    ],
     "dragons": [
-      {"x": 420, "y": 365}
+        {"x": 420, "y": 365}
+    ],
+    "wizards": [
+        {"x": 820, "y": 365}
     ],
     "door": {"x": 231, "y": 515},
     "key": {"x": 525, "y": 305}

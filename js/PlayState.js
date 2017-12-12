@@ -63,8 +63,12 @@ PlayState.shutdown = function () {
 PlayState._handleCollisions = function () {
     this.game.physics.arcade.collide(this.goblins, this.platforms);
     this.game.physics.arcade.collide(this.goblins, this.enemyWalls);
+    this.game.physics.arcade.collide(this.gargoyles, this.platforms);
+    this.game.physics.arcade.collide(this.gargoyles, this.enemyWalls);
     this.game.physics.arcade.collide(this.dragons, this.platforms);
     this.game.physics.arcade.collide(this.dragons, this.enemyWalls);
+    this.game.physics.arcade.collide(this.wizards, this.platforms);
+    this.game.physics.arcade.collide(this.wizards, this.enemyWalls);
     this.game.physics.arcade.collide(this.hero, this.platforms);
 
     // hero vs coins (pick up)
@@ -87,12 +91,16 @@ PlayState._handleCollisions = function () {
     // collision: hero vs enemies (kill or die)
     this.game.physics.arcade.overlap(this.hero, this.goblins,
         this._onHeroVsEnemy, null, this);
+    this.game.physics.arcade.overlap(this.hero, this.gargoyles,
+        this._onHeroVsEnemy, null, this);
     this.game.physics.arcade.overlap(this.hero, this.dragons,
         this._onHeroVsEnemy, null, this);
-    this.game.physics.arcade.overlap(this.hero, this.dragonWalls,
-        this._onHeroVsDragonWall, null, this);
-    this.game.physics.arcade.overlap(this.hero, this.dragonFlames,
-        this._onHeroVsDragonFlame, null, this);
+    this.game.physics.arcade.overlap(this.hero, this.wizards,
+        this._onHeroVsEnemy, null, this);
+    this.game.physics.arcade.overlap(this.hero, this.attackWalls,
+        this._onHeroVsAttackWall, null, this);
+    this.game.physics.arcade.overlap(this.hero, this.flames,
+        this._onHeroVsFlame, null, this);
 };
 
 PlayState._handleInput = function () {
@@ -155,29 +163,41 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
     }
 };
 
-PlayState._onHeroVsDragonWall = function (hero, wall) {
-    let dragon = wall.dragon;
-    dragon.body.velocity.x = 0;
-    dragon.wallLeft.body.velocity.x = 0;
-    dragon.wallRight.body.velocity.x = 0;
-    dragon.animations.play('attack').onComplete.addOnce(function () {
-      if(dragon.scale.x > 0) {
-          dragon.flame = new DragonFlame(dragon.game, dragon, dragon.body.x + 60, dragon.body.y + 20);
+PlayState._onHeroVsAttackWall = function (hero, wall) {
+    let enemy = wall.enemy;
+    enemy.body.velocity.x = 0;
+    enemy.wallLeft.body.velocity.x = 0;
+    enemy.wallRight.body.velocity.x = 0;
+    enemy.animations.play('attack').onComplete.addOnce(function () {
+      if(enemy instanceof Dragon) {
+          if(enemy.scale.x > 0) {
+              enemy.flame = new DragonFlame(enemy.game, enemy, enemy.body.x + 60, enemy.body.y + 20);
+          }
+          else {
+              enemy.flame = new DragonFlame(enemy.game, enemy, enemy.body.x, enemy.body.y + 20);
+          }
+          enemy.animations.play('fly');
       }
-      else {
-          dragon.flame = new DragonFlame(dragon.game, dragon, dragon.body.x, dragon.body.y + 20);
+      else if(enemy instanceof Wizard) {
+          if(enemy.scale.x > 0) {
+              enemy.flame = new WizardFlame(enemy.game, enemy, enemy.body.x + 30, enemy.body.y + 10);
+          }
+          else {
+              enemy.flame = new WizardFlame(enemy.game, enemy, enemy.body.x, enemy.body.y + 10);
+          }
+          enemy.animations.play('walk');
       }
-      this.dragonFlames.add(dragon.flame);
-      dragon.flame.scale.x = dragon.scale.x;
-      dragon.flame.body.velocity.x = dragon.velocity*2;
-      dragon.animations.play('fly');
-      dragon.body.velocity.x = dragon.velocity;
-      dragon.wallLeft.body.velocity.x = dragon.velocity;
-      dragon.wallRight.body.velocity.x = dragon.velocity;
+      this.flames.add(enemy.flame);
+      enemy.flame.scale.x = enemy.scale.x;
+      enemy.flame.body.velocity.x = enemy.velocity*2;
+
+      enemy.body.velocity.x = enemy.velocity;
+      enemy.wallLeft.body.velocity.x = enemy.velocity;
+      enemy.wallRight.body.velocity.x = enemy.velocity;
     }, this);
 };
 
-PlayState._onHeroVsDragonFlame = function (hero, flame) {
+PlayState._onHeroVsFlame = function (hero, flame) {
     this._heroDie(hero, flame);
 };
 
@@ -235,14 +255,16 @@ PlayState._loadLevel = function (data) {
     this.coins = this.game.add.group();
     this.chests = this.game.add.group();
     this.goblins = this.game.add.group();
+    this.gargoyles = this.game.add.group();
     this.dragons = this.game.add.group();
-    this.dragonWalls = this.game.add.group();
-    this.dragonFlames = this.game.add.group();
+    this.attackWalls = this.game.add.group();
+    this.wizards = this.game.add.group();
+    this.flames = this.game.add.group();
     this.enemyWalls = this.game.add.group();
     this.enemyWalls.visible = false;
 
     // spawn hero and enemies
-    this._spawnCharacters({hero: data.hero, goblins: data.goblins, dragons: data.dragons});
+    this._spawnCharacters({hero: data.hero, goblins: data.goblins, gargoyles: data.gargoyles, dragons: data.dragons, wizards: data.wizards});
 
     // spawn level decoration
     data.decoration.forEach(function (deco) {
@@ -275,12 +297,26 @@ PlayState._spawnCharacters = function (data) {
         this.goblins.add(sprite);
     }, this);
 
+    // spawn gargoyles
+    data.gargoyles.forEach(function (gargoyle) {
+        let sprite = new Gargoyle(this.game, gargoyle.x, gargoyle.y);
+        this.gargoyles.add(sprite);
+    }, this);
+
     // spawn dragons
     data.dragons.forEach(function (dragon) {
         let sprite = new Dragon(this.game, dragon.x, dragon.y);
         this.dragons.add(sprite);
-        this.dragonWalls.add(sprite.wallRight);
-        this.dragonWalls.add(sprite.wallLeft);
+        this.attackWalls.add(sprite.wallRight);
+        this.attackWalls.add(sprite.wallLeft);
+    }, this);
+
+    // spawn wizards
+    data.wizards.forEach(function (wizard) {
+        let sprite = new Wizard(this.game, wizard.x, wizard.y);
+        this.wizards.add(sprite);
+        this.attackWalls.add(sprite.wallRight);
+        this.attackWalls.add(sprite.wallLeft);
     }, this);
 
     // spawn hero

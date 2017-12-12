@@ -1,18 +1,18 @@
 //
-// Dragon (enemy)
+// Wizard (enemy)
 //
 
-function Dragon(game, x, y) {
-    Phaser.Sprite.call(this, game, x, y, 'dragon');
+function Wizard(game, x, y) {
+    Phaser.Sprite.call(this, game, x, y, 'wizard');
     this.game = game;
     this.speed = 150;
     // anchor
     this.anchor.set(0.5);
     // animation
-    this.animations.add('fly', [0, 1, 2, 3, 0, 0, 0, 0, 0, 0], 12, true);
-    this.animations.add('die', [4, 5, 4, 5, 4, 5, 4, 5, 4, 5], 12);
-    this.animations.add('attack', [6, 7, 8], 6);
-    this.animations.play('fly');
+    this.animations.add('walk', [0, 1, 2, 3, 4, 5, 6, 7], 12, true);
+    this.animations.add('die', [8, 9], 12);
+    this.animations.add('attack', [10, 11], 6);
+    this.animations.play('walk');
 
     // physic properties
     this.game.physics.enable(this);
@@ -20,17 +20,17 @@ function Dragon(game, x, y) {
     this.body.velocity.x = this.speed;
     this.velocity = this.speed;
 
-    this.wallRight = new AttackWall(game, this, x+135, y);
-    this.wallLeft = new AttackWall(game, this, x-35, y);
+    this.wallRight = new AttackWall(game, this, x+110, y);
+    this.wallLeft = new AttackWall(game, this, x-10, y);
 
     this.flame = null;
 }
 
 // inherit from Phaser.Sprite
-Dragon.prototype = Object.create(Phaser.Sprite.prototype);
-Dragon.prototype.constructor = Dragon;
+Wizard.prototype = Object.create(Phaser.Sprite.prototype);
+Wizard.prototype.constructor = Wizard;
 
-Dragon.prototype.update = function () {
+Wizard.prototype.update = function () {
     // check against walls and reverse direction if necessary
     if (this.body.touching.right || this.body.blocked.right) {
         this.body.velocity.x = -this.speed; // turn left
@@ -61,7 +61,7 @@ Dragon.prototype.update = function () {
     }
 };
 
-Dragon.prototype.die = function () {
+Wizard.prototype.die = function () {
     this.body.enable = false;
     this.wallLeft.die();
     this.wallRight.die();
