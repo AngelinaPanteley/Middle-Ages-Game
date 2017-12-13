@@ -3,9 +3,7 @@
 // =============================================================================
 
 const PlayState = {};
-
-const LEVEL_COUNT = 1;
-
+const LEVEL_COUNT = 10;
 let lifeCount = 7;
 let allCoins = 0;
 
@@ -35,7 +33,10 @@ PlayState.create = function () {
         stomp: this.game.add.audio('sfx:stomp'),
         door: this.game.add.audio('sfx:door')
     };
-    this.bgm = this.game.add.audio('bgm');
+    if(!this.audioAdded) {
+        this.bgm = this.game.add.audio('bgm');
+        this.audioAdded = true;
+    }
     this.bgm.loopFull();
 
     // create level entities and decoration
@@ -71,6 +72,8 @@ PlayState._handleCollisions = function () {
     this.game.physics.arcade.collide(this.wizards, this.enemyWalls);
     this.game.physics.arcade.collide(this.hero, this.platforms);
 
+    this.game.physics.arcade.overlap(this.hero, this.water, this._heroDie,
+        null, this);
     // hero vs coins (pick up)
     this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin,
         null, this);
@@ -164,6 +167,7 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
 };
 
 PlayState._onHeroVsAttackWall = function (hero, wall) {
+    //when the hero touches attack walls of the enemies, they turn and shoot him
     let enemy = wall.enemy;
     enemy.body.velocity.x = 0;
     enemy.wallLeft.body.velocity.x = 0;
@@ -252,6 +256,7 @@ PlayState._loadLevel = function (data) {
     // create all the groups/layers that we need
     this.bgDecoration = this.game.add.group();
     this.platforms = this.game.add.group();
+    this.water = this.game.add.group();
     this.coins = this.game.add.group();
     this.chests = this.game.add.group();
     this.goblins = this.game.add.group();
@@ -266,21 +271,20 @@ PlayState._loadLevel = function (data) {
     // spawn hero and enemies
     this._spawnCharacters({hero: data.hero, goblins: data.goblins, gargoyles: data.gargoyles, dragons: data.dragons, wizards: data.wizards});
 
-    // spawn level decoration
-    data.decoration.forEach(function (deco) {
-        this.bgDecoration.add(
-            this.game.add.image(deco.x, deco.y, 'decoration', deco.frame));
-    }, this);
-
     // spawn platforms
     data.platforms.forEach(this._spawnPlatform, this);
 
     // spawn important objects
     data.coins.forEach(this._spawnCoin, this);
     data.chests.forEach(this._spawnChest, this);
+
+    if(data.water) {
+        this._spawnWater(data.water.x, data.water.y);
+    }
     this._spawnKey(data.key.x, data.key.y);
+
     if(data.heart) {
-      this._spawnHeart(data.heart.x, data.heart.y);
+        this._spawnHeart(data.heart.x, data.heart.y);
     }
     this._spawnDoor(data.door.x, data.door.y);
 
@@ -338,6 +342,7 @@ PlayState._spawnPlatform = function (platform) {
     this._spawnEnemyWall(platform.x + sprite.width, platform.y, 'right');
 };
 
+
 PlayState._spawnEnemyWall = function (x, y, side) {
     let sprite = this.enemyWalls.create(x, y, 'invisible-wall');
     // anchor and y displacement
@@ -359,6 +364,18 @@ PlayState._spawnCoin = function (coin) {
     // animations
     sprite.animations.add('rotate', [0, 1, 2, 3], 8, true); // 6fps, looped
     sprite.animations.play('rotate');
+};
+
+PlayState._spawnWater = function (x, y) {
+    let sprite = this.water.create(x, y, 'water');
+
+    // physics (so we can detect overlap with the hero)
+    this.game.physics.enable(sprite);
+    sprite.body.allowGravity = false;
+
+    // animations
+    sprite.animations.add('shake', [0, 1, 2, 3, 4, 4, 4], 6, true);
+    sprite.animations.play('shake');
 };
 
 PlayState._spawnChest = function (chest) {
@@ -393,7 +410,7 @@ PlayState._spawnKey = function (x, y) {
 PlayState._spawnHeart = function (x, y) {
     this.heart = this.bgDecoration.create(x, y, 'heart');
     this.heart.anchor.set(0.5, 0.5);
-    // enable physics to detect collisions, so the hero can pick the key up
+    // enable physics to detect collisions, so the hero can pick the heart up
     this.game.physics.enable(this.heart);
     this.heart.body.allowGravity = false;
 

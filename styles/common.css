@@ -1,0 +1,89 @@
+@font-face {
+  font-family: 'Press';
+  font-style: normal;
+  font-weight: normal;
+  src: url('../font/PressStart.ttf');
+}
+
+body {
+  height: 100vh;
+  margin: 0;
+  min-height: 600px;
+  min-width: 1200px;
+  position: relative;
+}
+
+body > * {
+  color: #fff;
+  font-family: 'Press';
+  font-size: 30px;
+  height: 100%;
+  text-align: center;
+  width: 100%;
+}
+
+canvas {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+a {
+  background: #ff8260;
+  border: 5px solid #444068;
+  cursor: pointer;
+  display: inline-block;
+  margin: 20px 0;
+  padding: 20px 40px;
+  text-transform: uppercase;
+}
+
+.center-container {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+form {
+  margin: 0 auto;
+  width: 555px;
+}
+
+input[type="radio"] {
+  display: none;
+}
+
+input[type="radio"] + label {
+  background: #252454;
+  color: #d4dfe3;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1.2rem;
+  height: 120px;
+  line-height: 2rem;
+  line-height: 43px;
+  margin: 10px;
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+  width: 140px;
+}
+
+input[type="radio"] + label img {
+  height: 140%;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%,-50%);
+}
+
+input[type="radio"]:checked + label {
+  border: 5px solid #24f7fe;
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+}

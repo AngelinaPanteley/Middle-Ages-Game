@@ -16,7 +16,7 @@ function Hero(game, x, y) {
     this.animations.add('run', [1, 2, 3, 4, 5, 6, 7, 8], 8, true); // 8fps looped
     this.animations.add('jump', [9, 10, 11, 12]);
     this.animations.add('fall', [9]);
-    this.animations.add('die', [14, 15, 14, 15, 14, 15, 14, 15, 14, 15], 12); // 12fps no loop
+    this.animations.add('die', [14, 15, 14, 15, 14, 15, 14, 15], 12); // 12fps no loop
     // starting animation
     this.animations.play('stop');
 }

@@ -7,6 +7,7 @@ window.onload = function () {
     let game;
     const form = document.forms.settings;
     const heroes = form.elements.hero;
+    PlayState.audioAdded = false;
 
     document.getElementById('play-btn').addEventListener('click', function(e) {
         heroes.forEach(function(elem) {

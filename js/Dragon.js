@@ -42,7 +42,7 @@ Dragon.prototype.update = function () {
         this.velocity = this.speed;
         this.scale.x = 1;
     }
-
+    // check attack walls and reverse direction if necessary
     if (this.wallRight.body.touching.right || this.wallRight.body.blocked.right ||
         this.wallRight.body.touching.left || this.wallRight.body.blocked.left ||
         this.wallRight.body.touching.top || this.wallRight.body.blocked.top ||
