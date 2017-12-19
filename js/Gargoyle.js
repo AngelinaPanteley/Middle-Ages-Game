@@ -15,31 +15,10 @@ function Gargoyle(game, x, y) {
     // physic properties
     this.game.physics.enable(this);
     this.body.collideWorldBounds = true;
-    this.body.velocity.x = Gargoyle.SPEED;
+    this.body.velocity.x = Enemy.SPEED;
 }
 
-Gargoyle.SPEED = 100;
-
 // inherit from Phaser.Sprite
-Gargoyle.prototype = Object.create(Phaser.Sprite.prototype);
+Gargoyle.prototype = Object.create(Enemy.prototype);
 Gargoyle.prototype.constructor = Gargoyle;
 
-Gargoyle.prototype.update = function () {
-    // check against walls and reverse direction if necessary
-    if (this.body.touching.right || this.body.blocked.right) {
-        this.body.velocity.x = -Gargoyle.SPEED; // turn left
-        this.scale.x = -1;
-    }
-    else if (this.body.touching.left || this.body.blocked.left) {
-        this.body.velocity.x = Gargoyle.SPEED; // turn right
-        this.scale.x = 1;
-    }
-};
-
-Gargoyle.prototype.die = function () {
-    this.body.enable = false;
-
-    this.animations.play('die').onComplete.addOnce(function () {
-        this.kill();
-    }, this);
-};

@@ -15,31 +15,9 @@ function Goblin(game, x, y) {
     // physic properties
     this.game.physics.enable(this);
     this.body.collideWorldBounds = true;
-    this.body.velocity.x = Goblin.SPEED;
+    this.body.velocity.x = Enemy.SPEED;
 }
 
-Goblin.SPEED = 100;
-
-// inherit from Phaser.Sprite
-Goblin.prototype = Object.create(Phaser.Sprite.prototype);
+// inherit from Enemy
+Goblin.prototype = Object.create(Enemy.prototype);
 Goblin.prototype.constructor = Goblin;
-
-Goblin.prototype.update = function () {
-    // check against walls and reverse direction if necessary
-    if (this.body.touching.right || this.body.blocked.right) {
-        this.body.velocity.x = -Goblin.SPEED; // turn left
-        this.scale.x = -1;
-    }
-    else if (this.body.touching.left || this.body.blocked.left) {
-        this.body.velocity.x = Goblin.SPEED; // turn right
-        this.scale.x = 1;
-    }
-};
-
-Goblin.prototype.die = function () {
-    this.body.enable = false;
-
-    this.animations.play('die').onComplete.addOnce(function () {
-        this.kill();
-    }, this);
-};
