@@ -3,7 +3,7 @@
 // =============================================================================
 
 const PlayState = {};
-const LEVEL_COUNT = 10;
+const LEVEL_COUNT = 1;
 let lifeCount = 7;
 let allCoins = 0;
 
@@ -33,10 +33,8 @@ PlayState.create = function () {
         stomp: this.game.add.audio('sfx:stomp'),
         door: this.game.add.audio('sfx:door')
     };
-    if(!this.audioAdded) {
-        this.bgm = this.game.add.audio('bgm');
-        this.audioAdded = true;
-    }
+
+    this.bgm = this.game.add.audio('bgm');
     this.bgm.loopFull();
 
     // create level entities and decoration
@@ -494,6 +492,7 @@ PlayState._updateHearts = function () {
 };
 
 PlayState._createFinalWindow = function () {
+    this.shutdown();
     document.getElementById('game').classList.remove('open');
     document.getElementById('final-window').classList.add('open');
     document.getElementById('coins').innerHTML = "x" + allCoins;
