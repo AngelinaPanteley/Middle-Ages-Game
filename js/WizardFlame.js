@@ -2,11 +2,8 @@
 // Wizard Flame
 //
 
-function WizardFlame(game, wizard, x, y) {
+function WizardFlame(game, x, y) {
     Phaser.Sprite.call(this, game, x, y, 'wizard-flame');
-
-    this.speed = wizard.speed;
-    this.wizard = wizard;
     // anchor
     this.anchor.set(1, 0);
 
@@ -17,7 +14,7 @@ function WizardFlame(game, wizard, x, y) {
     // physic properties
     this.game.physics.enable(this);
     this.body.collideWorldBounds = false;
-    this.body.velocity.x = this.speed;
+
     this.body.allowGravity = false;
 }
 

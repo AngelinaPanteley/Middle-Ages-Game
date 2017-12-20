@@ -3,7 +3,7 @@
 // =============================================================================
 
 const PlayState = {};
-const LEVEL_COUNT = 1;
+const LEVEL_COUNT = 10;
 let lifeCount = 7;
 let allCoins = 0;
 
@@ -37,7 +37,7 @@ PlayState.create = function () {
     this.bgm = this.game.add.audio('bgm');
     this.bgm.loopFull();
 
-    // create level entities and decoration
+    // create level entities
     this.game.add.image(0, 0, 'background');
     this._loadLevel(this.game.cache.getJSON(`level:${this.level}`));
 
@@ -173,19 +173,19 @@ PlayState._onHeroVsAttackWall = function (hero, wall) {
     enemy.animations.play('attack').onComplete.addOnce(function () {
       if(enemy instanceof Dragon) {
           if(enemy.scale.x > 0) {
-              enemy.flame = new DragonFlame(enemy.game, enemy, enemy.body.x + 60, enemy.body.y + 20);
+              enemy.flame = new DragonFlame(enemy.game, enemy.body.x + 60, enemy.body.y + 20);
           }
           else {
-              enemy.flame = new DragonFlame(enemy.game, enemy, enemy.body.x, enemy.body.y + 20);
+              enemy.flame = new DragonFlame(enemy.game, enemy.body.x, enemy.body.y + 20);
           }
           enemy.animations.play('fly');
       }
       else if(enemy instanceof Wizard) {
           if(enemy.scale.x > 0) {
-              enemy.flame = new WizardFlame(enemy.game, enemy, enemy.body.x + 30, enemy.body.y + 10);
+              enemy.flame = new WizardFlame(enemy.game, enemy.body.x + 30, enemy.body.y + 10);
           }
           else {
-              enemy.flame = new WizardFlame(enemy.game, enemy, enemy.body.x, enemy.body.y + 10);
+              enemy.flame = new WizardFlame(enemy.game, enemy.body.x, enemy.body.y + 10);
           }
           enemy.animations.play('walk');
       }
@@ -252,7 +252,7 @@ PlayState._goToNextLevel = function () {
 
 PlayState._loadLevel = function (data) {
     // create all the groups/layers that we need
-    this.bgDecoration = this.game.add.group();
+    this.bgDecoration = this.game.add.group(); //heart, key, door
     this.platforms = this.game.add.group();
     this.water = this.game.add.group();
     this.coins = this.game.add.group();
@@ -429,12 +429,17 @@ PlayState._spawnDoor = function (x, y) {
 };
 
 PlayState._createHud = function () {
+    this.keyIcon = this.game.make.image(0, 10, 'icon:key');
+    this.keyIcon.anchor.set(0, 0.5);
+
     const NUMBERS_STR = '0123456789X ';
     this.coinFont = this.game.add.retroFont('font:numbers', 10, 13,
         NUMBERS_STR, 6);
 
-    this.keyIcon = this.game.make.image(0, 10, 'icon:key');
-    this.keyIcon.anchor.set(0, 0.5);
+    let coinIcon = this.game.make.image(this.keyIcon.width + 7, 0, 'icon:coin');
+    let coinScoreImg = this.game.make.image(coinIcon.x + coinIcon.width,
+        coinIcon.height / 2, this.coinFont);
+    coinScoreImg.anchor.set(0, 0.5);
 
     this.heartIcon1 = this.game.make.image(1120, 10, 'icon:heart');
     this.heartIcon1.anchor.set(0, 0.5);
@@ -442,13 +447,6 @@ PlayState._createHud = function () {
     this.heartIcon2.anchor.set(0, 0.5);
     this.heartIcon3 = this.game.make.image(1160, 10, 'icon:heart');
     this.heartIcon3.anchor.set(0, 0.5);
-
-    this._updateHearts();
-
-    let coinIcon = this.game.make.image(this.keyIcon.width + 7, 0, 'icon:coin');
-    let coinScoreImg = this.game.make.image(coinIcon.x + coinIcon.width,
-        coinIcon.height / 2, this.coinFont);
-    coinScoreImg.anchor.set(0, 0.5);
 
     this.hud = this.game.add.group();
     this.hud.add(coinIcon);

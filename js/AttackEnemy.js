@@ -21,18 +21,18 @@ AttackEnemy.prototype.update = function () {
         this.scale.x = 1;
     }
     // check attack walls and reverse direction if necessary
-    if (this.wallRight.body.touching.right || this.wallRight.body.blocked.right ||
-        this.wallRight.body.touching.left || this.wallRight.body.blocked.left ||
-        this.wallRight.body.touching.top || this.wallRight.body.blocked.top ||
-        this.wallRight.body.touching.bottom || this.wallRight.body.blocked.bottom) {
+    if (this.wallRight.body.touching.right ||
+        this.wallRight.body.touching.left ||
+        this.wallRight.body.touching.top  ||
+        this.wallRight.body.touching.bottom) {
 
         this.velocity = Math.abs(this.velocity);
         this.scale.x = 1;
     }
-    else if (this.wallLeft.body.touching.right || this.wallLeft.body.blocked.right ||
-        this.wallLeft.body.touching.left || this.wallLeft.body.blocked.left ||
-        this.wallLeft.body.touching.top || this.wallLeft.body.blocked.top ||
-        this.wallLeft.body.touching.bottom || this.wallLeft.body.blocked.bottom) {
+    else if (this.wallLeft.body.touching.right ||
+        this.wallLeft.body.touching.left ||
+        this.wallLeft.body.touching.top ||
+        this.wallLeft.body.touching.bottom) {
 
         this.velocity = - Math.abs(this.velocity);
         this.scale.x = -1;

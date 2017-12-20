@@ -2,11 +2,9 @@
 // Dragon Flame
 //
 
-function DragonFlame(game, dragon, x, y) {
+function DragonFlame(game, x, y) {
     Phaser.Sprite.call(this, game, x, y, 'dragon-flame');
 
-    this.speed = dragon.speed;
-    this.dragon = dragon;
     // anchor
     this.anchor.set(1, 0);
 
@@ -17,7 +15,7 @@ function DragonFlame(game, dragon, x, y) {
     // physic properties
     this.game.physics.enable(this);
     this.body.collideWorldBounds = false;
-    this.body.velocity.x = this.speed;
+
     this.body.allowGravity = false;
 }
 
